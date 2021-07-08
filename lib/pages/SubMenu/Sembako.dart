@@ -1,64 +1,27 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:inventory/dbHelper/dbHelper.dart';
 import 'package:inventory/model/barang.dart';
-
-// class Sembako extends StatelessWidget {
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: Scaffold(
-
-// body: ListView(
-//       children: <Widget>[
-//         Column(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           // crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-
-//             Column(
-//               children: <Widget>[
-//                 Container(
-//                   margin: EdgeInsets.only(
-//                     top: 25.0,
-//                     bottom: 0.0,
-//                     left: 50.0,
-//                     right: 50.0),
-//                   child: Text("WARUNG.KU",
-//                           style: TextStyle(fontFamily: 'Varela', fontSize: 15.0),
-//                           ),
-//                 ),
-//               ],
-//             ),
-
-//             Column(
-//               children: <Widget>[
-//                 Container(
-//                   // Form Here
-//                   child: Text("Form Here",
-//                     style: TextStyle(fontFamily: 'Varela', fontSize: 15.0),
-//                   ),
-//                 )
-//               ],
-//             ),
-
-//           ],
-//         )
-//       ],
-//     )));
-//   }
-// }
+import 'dart:async';
 
 class Sembako extends StatefulWidget {
+  final String title;
+
+  Sembako({Key key, this.title}) : super(key: key);
+
   @override
-  _SembakoState createState() => _SembakoState();
+  State<StatefulWidget> createState() {
+    return _SembakoState();
+  }
 }
 
 class _SembakoState extends State<Sembako> {
+  //
   Future<List<Barang>> allBarang;
   TextEditingController controller = TextEditingController();
-  int idBarang;
   String namaBarang;
+  int idBarang;
   int stock;
 
   final formKey = new GlobalKey<FormState>();
@@ -70,6 +33,7 @@ class _SembakoState extends State<Sembako> {
     super.initState();
     dbHelper = DBHelper();
     isUpdating = false;
+    refreshList();
   }
 
   refreshList() {
@@ -78,7 +42,7 @@ class _SembakoState extends State<Sembako> {
     });
   }
 
-  clearNamaBarang() {
+  clearName() {
     controller.text = '';
   }
 
@@ -95,35 +59,52 @@ class _SembakoState extends State<Sembako> {
         Barang e = Barang(null, namaBarang, stock);
         dbHelper.save(e);
       }
-      clearNamaBarang();
+      clearName();
       refreshList();
     }
   }
 
   form() {
     return Form(
+      key: formKey,
       child: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(15.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           verticalDirection: VerticalDirection.down,
           children: <Widget>[
             TextFormField(
               controller: controller,
               keyboardType: TextInputType.text,
-              decoration: InputDecoration(labelText: 'Nama Barang'),
-              validator: (val) =>
-                  val.length == 0 ? 'Masukan Nama Barang' : null,
+              decoration: InputDecoration(labelText: 'Name'),
+              validator: (val) => val.length == 0 ? 'Enter Name' : null,
               onSaved: (val) => namaBarang = val,
             ),
-            Spacer(),
             TextFormField(
               controller: controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Nama Barang'),
-              validator: (val) =>
-                  val.length == 0 ? 'Masukan jumlah barang' : null,
-              onSaved: (val) => stock = val as int,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(labelText: 'Stock'),
+              validator: (i) => i.length == 0 ? 'Enter Stock' : null,
+              onSaved: (i) => stock = i as int,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                FlatButton(
+                  onPressed: validate,
+                  child: Text(isUpdating ? 'UPDATE' : 'ADD'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      isUpdating = false;
+                    });
+                    clearName();
+                  },
+                  child: Text('CANCEL'),
+                )
+              ],
             ),
           ],
         ),
@@ -156,6 +137,15 @@ class _SembakoState extends State<Sembako> {
                     controller.text = barang.namaBarang;
                   },
                 ),
+                // DataCell(
+                //   Text(barang.stock),
+                //   onTap: () {
+                //     setState(() {
+                //       isUpdating = true;
+                //       idBarang = barang.id;
+                //     });
+                //   },
+                // ),
                 DataCell(IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
@@ -193,10 +183,13 @@ class _SembakoState extends State<Sembako> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Flutter SQLITE CRUD DEMO'),
+        title: new Text('Sembako'),
       ),
-      body: Container(
-        child: Column(
+      body: new Container(
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          verticalDirection: VerticalDirection.down,
           children: <Widget>[
             form(),
             list(),

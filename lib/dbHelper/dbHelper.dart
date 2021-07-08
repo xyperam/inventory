@@ -9,7 +9,7 @@ class DBHelper {
   static Database _db;
   static const String id = 'id';
   static const String namaBarang = 'namaBarang';
-  static const String harga = 'harga';
+  static const String stock = 'stock';
   static const String table = 'barang';
   static const String DB_NAME = 'inventory';
 
@@ -30,7 +30,7 @@ class DBHelper {
 
   _onCreate(Database db, int version) async {
     await db.execute(
-        "CREATE TABLE $table($id INTEGER PRIMARY KEY,$namaBarang TEXT,$harga INTEGER)");
+        "CREATE TABLE $table($id INTEGER PRIMARY KEY,$namaBarang TEXT,$stock INTEGER)");
   }
 
   Future<Barang> save(Barang barang) async {
@@ -39,17 +39,17 @@ class DBHelper {
     return barang;
   }
 
-  Future<List<Barang>> getBarang() async {
+  Future<List<Barang>> getAllBarang() async {
     var dbClient = await db;
     List<Map> maps =
-        await dbClient.query(table, columns: [id, namaBarang, harga]);
-    List<Barang> barang = [];
+        await dbClient.query(table, columns: [id, namaBarang, stock]);
+    List<Barang> allBarang = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        barang.add(Barang.fromMap(maps[i]));
+        allBarang.add(Barang.fromMap(maps[i]));
       }
     }
-    return barang;
+    return allBarang;
   }
 
   Future<int> delete(int id) async {

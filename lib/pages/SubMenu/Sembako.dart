@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:inventory/dbHelper/dbHelper.dart';
 import 'package:inventory/model/barang.dart';
@@ -20,9 +18,10 @@ class _SembakoState extends State<Sembako> {
   //
   Future<List<Barang>> allBarang;
   TextEditingController controller = TextEditingController();
+  var stockController = TextEditingController();
   String namaBarang;
   int idBarang;
-  int stock;
+  var stock;
 
   final formKey = new GlobalKey<FormState>();
   var dbHelper;
@@ -46,6 +45,10 @@ class _SembakoState extends State<Sembako> {
     controller.text = '';
   }
 
+  clearStock() {
+    stockController.text = '';
+  }
+
   validate() {
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
@@ -60,6 +63,7 @@ class _SembakoState extends State<Sembako> {
         dbHelper.save(e);
       }
       clearName();
+      clearStock();
       refreshList();
     }
   }
@@ -82,7 +86,7 @@ class _SembakoState extends State<Sembako> {
               onSaved: (val) => namaBarang = val,
             ),
             TextFormField(
-              controller: controller,
+              controller: stockController,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(labelText: 'Stock'),
               validator: (i) => i.length == 0 ? 'Enter Stock' : null,
@@ -121,8 +125,11 @@ class _SembakoState extends State<Sembako> {
             label: Text('NAME'),
           ),
           DataColumn(
+            label: Text('Stock'),
+          ),
+          DataColumn(
             label: Text('DELETE'),
-          )
+          ),
         ],
         rows: allBarang
             .map(
@@ -137,15 +144,13 @@ class _SembakoState extends State<Sembako> {
                     controller.text = barang.namaBarang;
                   },
                 ),
-                // DataCell(
-                //   Text(barang.stock),
-                //   onTap: () {
-                //     setState(() {
-                //       isUpdating = true;
-                //       idBarang = barang.id;
-                //     });
-                //   },
-                // ),
+                //error
+                // DataCell(Text(barang.stock), onTap: () {
+                //   setState(() {
+                //     isUpdating = true;
+                //     idBarang = barang.id;
+                //   });
+                // }),
                 DataCell(IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
